@@ -1,6 +1,6 @@
 # FinanzPartner — financing experience
 
-German-language Next.js 14 App Router starter for a loan-orientation calculator and an explicitly non-binding inquiry workflow.
+German-language Next.js 16 App Router starter for an illustrative loan calculator and non-binding financing inquiry.
 
 ## Run locally
 
@@ -9,14 +9,24 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. URL parameters `?amount=5000&term=36&utm_source=tiktok` prefill the calculator; campaign parameters are not persisted. `src/lib/loan.ts` contains the typed annuity engine and German currency formatter.
+Open `http://localhost:3000`. URL parameters such as `?amount=5000&term=36&utm_source=tiktok` prefill the calculator. The `amount` and `term` values are validated against the available ranges. `src/lib/loan.ts` contains the typed annuity calculation and German currency formatter.
 
-## Optional application integrations
+## Application API setup
 
-Copy `.env.example` to `.env.local` and configure server-side values only. The API stores applications in Supabase when both `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are present, and sends a confirmation email when `RESEND_API_KEY` and `EMAIL_FROM` are set. Otherwise, it returns a successful demo response and logs only a limited diagnostic record; no durable storage or email delivery is available. Create a Supabase `applications` table with columns matching `src/app/api/applications/route.ts` before enabling storage. Use a restricted service role key, rate limiting, bot protection, retention controls, consent logging and monitoring before public launch.
+Copy `.env.example` to `.env.local`. Configure `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to enable secure server-side persistence. The API intentionally returns `503` if storage is not configured; it never pretends that a demo request was received. Create a Supabase `applications` table with columns matching the application object in `src/app/api/applications/route.ts`. Never expose the service-role key to browser code.
 
-## Before production
+Set `RESEND_API_KEY` and `EMAIL_FROM` to send an optional applicant confirmation. The UI reports whether the confirmation email was actually sent. Configure and verify the sender domain with Resend before enabling delivery. The API validates consent, allowed purposes, numeric ranges, same-origin browser requests, JSON content type and request size; it does not log submitted personal data.
 
-This repository is a design/engineering starter, not a live lender, broker, credit offer, compliance certification or legal advice. The illustrative 2.20% rate and 0% promotion are sample UI assumptions and must not be represented as available/approved terms without verification and legally reviewed representative examples. Do not use the sample confirmation flow as an approval, express payout, document-upload or loan-contract workflow. The UI deliberately avoids collecting IBAN or identity/payroll documents. No secure document-upload link is generated.
+## Checks
 
-Replace all footer legal placeholders with the actual entity and reviewed German legal disclosures; verify the applicable licensing/permissions and PAngV, consumer-credit, DSGVO, cookie, email-consent, security and advertising requirements with qualified counsel. Current cookie interface records a preference locally but no advertising/analytics scripts are enabled. No BaFin, SSL or press endorsements are claimed. Add consent-aware analytics only after proper consent, server-side schema validation, CSRF/origin controls, rate limiting, anti-abuse protections, operational email failure handling and data-retention/deletion processes. Test any live pricing end-to-end before publishing.
+`npm run lint` runs TypeScript validation. `npm run build` creates the production build. `npm audit` should report no known dependency vulnerabilities.
+
+## Important before production
+
+This starter is not a lender, broker, credit offer, compliance certification or legal advice. Sample interest rates and the 0% promotion are illustrative and must not be presented as available or approved terms without verification and legally reviewed representative examples. No secure document-upload workflow, approval, express payout or actual credit decision is implemented. The form deliberately does not collect IBAN, identity documents or payroll records.
+
+Replace all legal placeholders with real company information and reviewed German disclosures. Verify actual licensing and applicable PAngV, consumer-credit, DSGVO, cookie, consent, security and advertising requirements with qualified counsel. The cookie interface stores only a local preference; no advertising or analytics scripts are enabled. No BaFin, SSL or press endorsements are claimed. Configure production-grade rate limiting, bot protection, retention/deletion policies, monitoring and operational recovery before accepting public submissions. Validate real pricing and all financial representations before launch.
+
+## Preview access
+
+The in-sandbox site should be opened via Arena's **Live Preview** control. A direct `e2b.app` address can return `403 Missing traffic access token` because the preview gateway requires its traffic-access header. That gateway authorization is not handled by this Next.js app; do not hard-code or expose a traffic token in the repository or browser URL.
